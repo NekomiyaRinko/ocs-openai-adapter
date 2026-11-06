@@ -1,13 +1,13 @@
 {
-  "name": "ocs-deepseek-adapter",
+  "name": "ocs-openai-adapter",
   "version": "0.1.3",
   "private": true,
   "type": "module",
   "license": "MIT",
-  "description": "Independent DeepSeek API adapter configuration for OCS AnswererWrapper.",
+  "description": "OpenAI-compatible Chat Completions adapter configuration for OCS AnswererWrapper.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/2488054910/ocs-deepseek-adapter.git"
+    "url": "https://github.com/NekomiyaRinko/ocs-openai-adapter.git"
   },
   "engines": {
     "node": ">=20"

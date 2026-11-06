@@ -7,7 +7,7 @@ import { createConfig } from '../src/adapter.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publicFiles = [
   '.gitattributes', '.gitignore', 'CHANGELOG.md', 'LICENSE', 'README.md',
-  'THIRD_PARTY_NOTICES.md', 'docs/guide.md', 'ocs-deepseek.json', 'package.json',
+  'THIRD_PARTY_NOTICES.md', 'docs/guide.md', 'ocs-deepseek.json', 'ocs-openai.json', 'package.json',
   'scripts/build.mjs', 'scripts/verify-publication.mjs', 'src/adapter.mjs', 'test/adapter.test.mjs'
 ];
 const files = [];
@@ -28,14 +28,14 @@ for (const name of files) {
   assert(!/https?:\/\/[^\s"'<>]*(?:[?&](?:courseid|clazzid|cpi|enc)=)/i.test(content), `Account URL in ${name}`);
   assert(!content.includes('C:' + '\\Users\\') && !content.includes('D:' + '\\Codex\\'), `Local user path in ${name}`);
 }
-const artifact = JSON.parse(fs.readFileSync(path.join(root, 'ocs-deepseek.json'), 'utf8'));
+const artifact = JSON.parse(fs.readFileSync(path.join(root, 'ocs-openai.json'), 'utf8'));
 assert.deepEqual(artifact, createConfig());
-assert.equal(artifact[0].headers.Authorization, 'Bearer REPLACE_WITH_YOUR_DEEPSEEK_API_KEY');
+assert.equal(artifact[0].headers.Authorization, 'Bearer REPLACE_WITH_YOUR_API_KEY');
 const guide = fs.readFileSync(path.join(root, 'docs/guide.md'), 'utf8');
 const configLink = guide.match(/\[[^\]]+\]\(([^)]+\.json)\)/);
 assert(configLink, 'Configuration link missing from guide');
 const guideConfigPath = path.resolve(root, 'docs', configLink[1]);
-assert.equal(guideConfigPath, path.resolve(root, 'ocs-deepseek.json'), 'Guide must link to the published configuration');
+assert.equal(guideConfigPath, path.resolve(root, 'ocs-openai.json'), 'Guide must link to the published configuration');
 assert(fs.existsSync(guideConfigPath), 'Linked configuration file is missing');
 assert(fs.readFileSync(path.join(root, 'THIRD_PARTY_NOTICES.md'), 'utf8').includes('2022 enncy'));
 assert(fs.readFileSync(path.join(root, 'README.md'), 'utf8').includes('非官方'));

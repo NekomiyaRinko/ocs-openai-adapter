@@ -84,11 +84,12 @@ test('serialized configuration handlers run without source-module scope', () => 
 });
 
 test('build artifact is reproducible and only carries a placeholder key', () => {
-  const artifact = JSON.parse(fs.readFileSync(new URL('../ocs-deepseek.json', import.meta.url), 'utf8'));
+  const artifact = JSON.parse(fs.readFileSync(new URL('../ocs-openai.json', import.meta.url), 'utf8'));
   assert.deepEqual(artifact, createConfig());
-  assert.equal(artifact[0].headers.Authorization, 'Bearer REPLACE_WITH_YOUR_DEEPSEEK_API_KEY');
-  assert.equal(new URL(artifact[0].url).hostname, 'api.deepseek.com');
+  assert.equal(artifact[0].headers.Authorization, 'Bearer REPLACE_WITH_YOUR_API_KEY');
+  assert.equal(artifact[0].url, 'https://api.openai.com/v1/chat/completions');
+  assert.equal(artifact[0].data.model, 'REPLACE_WITH_YOUR_MODEL');
   assert.equal(artifact[0].data.stream, false);
-  assert.equal(artifact[0].data.thinking.type, 'disabled');
+  assert.equal('thinking' in artifact[0].data, false);
   assert.equal(artifact[0].data.response_format.type, 'json_object');
 });

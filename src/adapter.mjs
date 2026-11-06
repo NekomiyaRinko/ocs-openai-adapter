@@ -4,7 +4,7 @@
 
 export function buildMessages(env) {
   const title = String(env.title || '').trim();
-  if (!title) throw new Error('题目为空，未调用 DeepSeek。');
+  if (!title) throw new Error('题目为空，未调用模型接口。');
   const options = Array.isArray(env.options) ? env.options.join('\n') : String(env.options || '');
   return [
     {
@@ -25,19 +25,19 @@ export function buildMessages(env) {
 }
 
 export function parseResponse(res) {
-  if (res && res.error) throw new Error('DeepSeek 请求失败，请检查 API Key、余额或模型配置。');
+  if (res && res.error) throw new Error('模型请求失败，请检查 API Key、余额或模型配置。');
   const choice = res && res.choices && res.choices[0];
-  if (!choice || !choice.message) throw new Error('DeepSeek 响应缺少 choices[0].message。');
-  if (choice.finish_reason !== 'stop') throw new Error('DeepSeek 回答未完整结束，未回填答案。');
+  if (!choice || !choice.message) throw new Error('模型响应缺少 choices[0].message。');
+  if (choice.finish_reason !== 'stop') throw new Error('模型回答未完整结束，未回填答案。');
   const content = choice.message.content;
   if (typeof content !== 'string' || !content.trim()) return undefined;
   let data;
   try { data = JSON.parse(content); }
-  catch { throw new Error('DeepSeek 回答不是有效 JSON，未回填答案。'); }
-  if (!data || !Array.isArray(data.answers)) throw new Error('DeepSeek 回答缺少 answers 数组。');
+  catch { throw new Error('模型回答不是有效 JSON，未回填答案。'); }
+  if (!data || !Array.isArray(data.answers)) throw new Error('模型回答缺少 answers 数组。');
   if (!data.answers.length) return undefined;
   if (!data.answers.every(answer => typeof answer === 'string' && answer.trim())) {
-    throw new Error('DeepSeek 答案包含空值或非文字内容，未回填答案。');
+    throw new Error('模型答案包含空值或非文字内容，未回填答案。');
   }
   // OCS 5.2.1 splitAnswer 支持以 JSON 字符串承载答案数组，保留 C#、分号等原文。
   return [undefined, JSON.stringify(data.answers.map(answer => answer.trim()))];
@@ -45,19 +45,18 @@ export function parseResponse(res) {
 
 export function createConfig() {
   return [{
-    name: 'DeepSeek AI（本机自用）',
-    homepage: 'https://api.deepseek.com',
-    url: 'https://api.deepseek.com/chat/completions',
+    name: 'OpenAI 兼容接口（本机自用）',
+    homepage: 'https://platform.openai.com',
+    url: 'https://api.openai.com/v1/chat/completions',
     method: 'post',
     type: 'GM_xmlhttpRequest',
     contentType: 'json',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: 'Bearer REPLACE_WITH_YOUR_DEEPSEEK_API_KEY'
+      Authorization: 'Bearer REPLACE_WITH_YOUR_API_KEY'
     },
     data: {
-      model: 'deepseek-flash',
-      thinking: { type: 'disabled' },
+      model: 'REPLACE_WITH_YOUR_MODEL',
       stream: false,
       max_tokens: 1024,
       response_format: { type: 'json_object' },
