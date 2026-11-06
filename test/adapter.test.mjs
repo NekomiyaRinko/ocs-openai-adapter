@@ -26,6 +26,31 @@ test('blank questions fail before a caller can send a request', () => {
   assert.throws(() => buildMessages({ title: ' \n ' }), /题目为空/);
 });
 
+test('image-only questions include the image even without a title', () => {
+  const image = 'data:image/png;base64,YWJj';
+  const content = buildMessages({ title: '', images: [image] })[1].content;
+  assert.deepEqual(content, [
+    { type: 'text', text: '{"type":"unknown","title":"","options":""}' },
+    { type: 'image_url', image_url: { url: image } }
+  ]);
+});
+
+test('mixed questions preserve OCS image references and image order', () => {
+  const images = ['data:image/png;base64,YWJj', 'data:image/jpeg;base64,ZGVm'];
+  const env = { title: '原题', options: '原选项', suggestion_title: '看图 [图片1] 作答', suggestion_options: '甲 [图片2]\n乙', type: 'single', images };
+  const content = buildMessages(env)[1].content;
+  assert.deepEqual(JSON.parse(content[0].text), { type: 'single', title: '看图 [图片1] 作答', options: '甲 [图片2]\n乙' });
+  assert.deepEqual(content.slice(1).map(part => part.image_url.url), images);
+  const handler = new Function(createConfig()[0].data.messages.handler)();
+  assert.deepEqual(handler(env), buildMessages(env));
+});
+
+test('invalid images fail rather than silently sending incomplete questions', () => {
+  assert.throws(() => buildMessages({ title: '题目', images: ['https://example.com/image.png'] }), /图片格式无效/);
+  assert.throws(() => buildMessages({ title: '题目', images: [null] }), /图片格式无效/);
+  assert.throws(() => buildMessages({ title: '题目', images: 'data:image/png;base64,YWJj' }), /图片格式无效/);
+});
+
 for (const [type, answers] of [
   ['single', ['甲']],
   ['multiple', ['甲', '乙']],

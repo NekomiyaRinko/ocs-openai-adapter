@@ -1,6 +1,6 @@
 # OCS OpenAI 兼容接口适配器
 
-将支持 OpenAI Chat Completions 格式的模型服务接入 OCS 自定义题库。适配器把文字题发送给所选服务商，再将模型返回的答案转换为 OCS 可处理的格式。项目基于 [ocs-deepseek-adapter](https://github.com/2488054910/ocs-deepseek-adapter)，是非官方独立项目。
+将支持 OpenAI Chat Completions 格式的模型服务接入 OCS 自定义题库。适配器把题目发送给所选服务商，再将模型返回的答案转换为 OCS 可处理的格式。项目基于 [ocs-deepseek-adapter](https://github.com/2488054910/ocs-deepseek-adapter)，是非官方独立项目。
 
 ## 快速开始
 
@@ -13,7 +13,11 @@
 
 ## 工作方式
 
-适配器将题型、题干和选项整理为模型消息，提示模型返回 `{"answers":["答案"]}`。它支持文字单选、多选、判断和填空，按模型返回顺序保留答案；图片及未提供的材料不会被读取。
+适配器将题型、题干和选项整理为模型消息，提示模型返回 `{"answers":["答案"]}`，并按模型返回顺序保留答案。
+
+适配器也可接收 OCS 提取的图片，尝试处理图片题和图文混合题。使用前需开启 OCS 的“图片题优化”，并选择支持图片输入的模型及兼容接口。未提取到的图片和其他材料无法读取，图片选项的匹配效果取决于 OCS 和平台。
+
+图片消息构造已有离线测试，但**纯图片题、图文混合题及图片选项回填尚未完成真实 OCS 与模型服务的端到端验证**。使用时请核对答案，配置方法与限制见[图片题教程](docs/guide.md#图片题)。
 
 默认请求使用非流式 Chat Completions、Bearer 鉴权、`reasoning_effort: "medium"`、`max_tokens: 1024` 和 JSON 对象模式。模型及服务商需要支持所配置的参数；思考强度可调整或移除，详见教程。解析器读取 `choices[0].message.content`，要求 `finish_reason` 为 `stop`。空内容或空答案不产生回填结果，无效 JSON、异常结束和非文字答案会被拦截。
 
@@ -34,7 +38,9 @@ npm test
 npm run check
 ```
 
-构建会覆盖 `ocs-openai.json`，请将真实密钥保存在配置副本中。`npm test` 使用模拟数据，`npm run check` 检查配置一致性及部分发布风险；两者均不连接真实模型服务。原项目曾在 Windows / Edge、OCS 5.2.1 验证，本版本的实际服务与浏览器端兼容性需自行测试。
+构建会覆盖 `ocs-openai.json`，请将真实密钥保存在配置副本中。`npm test` 使用模拟数据，`npm run check` 检查配置一致性及部分发布风险；两者均不连接真实模型服务。
+
+原项目曾在 Windows / Edge、OCS 5.2.1 验证，本版本的实际服务与浏览器端兼容性需自行测试。
 
 ## 许可
 

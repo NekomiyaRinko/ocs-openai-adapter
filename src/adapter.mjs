@@ -3,9 +3,16 @@
 // Independent adapter for the public OCS AnswererWrapper interface.
 
 export function buildMessages(env) {
-  const title = String(env.title || '').trim();
-  if (!title) throw new Error('题目为空，未调用模型接口。');
-  const options = Array.isArray(env.options) ? env.options.join('\n') : String(env.options || '');
+  if (env.images != null && !Array.isArray(env.images)) throw new Error('题目图片格式无效，未调用模型接口。');
+  const images = Array.isArray(env.images) ? env.images : [];
+  if (images.some(image => typeof image !== 'string' || !/^data:image\/(png|jpeg|jpg|gif|webp);base64,[a-z0-9+/]+={0,2}$/i.test(image))) {
+    throw new Error('题目图片格式无效，未调用模型接口。');
+  }
+  const title = String((images.length && env.suggestion_title) || env.title || '').trim();
+  if (!title && !images.length) throw new Error('题目为空，未调用模型接口。');
+  const rawOptions = (images.length && env.suggestion_options) || env.options;
+  const options = Array.isArray(rawOptions) ? rawOptions.join('\n') : String(rawOptions || '');
+  const question = JSON.stringify({ type: env.type || 'unknown', title, options });
   return [
     {
       role: 'system',
@@ -16,11 +23,15 @@ export function buildMessages(env) {
         'multiple 多选：每个正确选项的完整文字分别放入 answers，保持原选项顺序，不要选项前面的字母或编号。',
         'judgement 判断：answers 只能是 ["正确"] 或 ["错误"]。',
         'completion 填空：按空位顺序分别返回每个空的答案，重复的答案也要保留。',
-        '其他文字题：answers 中只放简洁答案。题目缺失、仅有无法识别的图片、需要未提供的材料或无法确定时，返回 {"answers":[]}。',
+        '其他题目：answers 中只放简洁答案。题目缺失、图片无法识别、需要未提供的材料或无法确定时，返回 {"answers":[]}。',
+        '附带图片按顺序对应题干或选项中的 [图片1]、[图片2] 等标记。图片选项应返回其原有的 [图片N] 标记；图文混合选项返回完整原文。',
         '题目没有附带的图片、网页和材料不可假装已经读取。'
       ].join('\n')
     },
-    { role: 'user', content: JSON.stringify({ type: env.type || 'unknown', title, options }) }
+    { role: 'user', content: images.length ? [
+      { type: 'text', text: question },
+      ...images.map(image => ({ type: 'image_url', image_url: { url: image } }))
+    ] : question }
   ];
 }
 
