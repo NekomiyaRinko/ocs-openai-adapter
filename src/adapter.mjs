@@ -45,7 +45,7 @@ export function parseResponse(res) {
 
 export function createConfig() {
   return [{
-    name: 'OpenAI 兼容接口（本机自用）',
+    name: 'REPLACE_WITH_YOUR_API_NAME',
     homepage: 'https://platform.openai.com',
     url: 'https://api.openai.com/v1/chat/completions',
     method: 'post',
@@ -57,6 +57,7 @@ export function createConfig() {
     },
     data: {
       model: 'REPLACE_WITH_YOUR_MODEL',
+      reasoning_effort: 'medium',
       stream: false,
       max_tokens: 1024,
       response_format: { type: 'json_object' },

@@ -7,7 +7,7 @@ import { createConfig } from '../src/adapter.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publicFiles = [
   '.gitattributes', '.gitignore', 'CHANGELOG.md', 'LICENSE', 'README.md',
-  'THIRD_PARTY_NOTICES.md', 'docs/guide.md', 'ocs-deepseek.json', 'ocs-openai.json', 'package.json',
+  'THIRD_PARTY_NOTICES.md', 'docs/guide.md', 'ocs-openai.json', 'package.json',
   'scripts/build.mjs', 'scripts/verify-publication.mjs', 'src/adapter.mjs', 'test/adapter.test.mjs'
 ];
 const files = [];

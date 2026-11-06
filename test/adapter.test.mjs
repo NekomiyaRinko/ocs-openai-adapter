@@ -89,6 +89,7 @@ test('build artifact is reproducible and only carries a placeholder key', () => 
   assert.equal(artifact[0].headers.Authorization, 'Bearer REPLACE_WITH_YOUR_API_KEY');
   assert.equal(artifact[0].url, 'https://api.openai.com/v1/chat/completions');
   assert.equal(artifact[0].data.model, 'REPLACE_WITH_YOUR_MODEL');
+  assert.equal(artifact[0].data.reasoning_effort, 'medium');
   assert.equal(artifact[0].data.stream, false);
   assert.equal('thinking' in artifact[0].data, false);
   assert.equal(artifact[0].data.response_format.type, 'json_object');
